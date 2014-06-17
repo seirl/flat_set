@@ -1,0 +1,7 @@
+#! /bin/sh
+
+rm -f Makefile.rules
+
+for i in "$@"; do
+  echo "$i" >> Makefile.rules
+done
