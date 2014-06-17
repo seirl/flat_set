@@ -2,31 +2,43 @@
 # define FLATSET_HH_
 
 # include <algorithm>
+# include <cassert>
 # include <functional>
 # include <vector>
 
 
-#include <iostream>
-
 namespace flat
 {
   template <typename Key,
-           typename Compare = std::less<Key>>
+            typename Compare = std::less<Key>,
+            typename Allocator = std::allocator<Key>>
   class flat_set
   {
   public:
     using key_type = Key;
     using value_type = Key;
-    using size_type = std::size_t;
-    using key_compare = Compare;
-    using value_compare = Compare;
+
   private:
     using vect_type = std::vector<key_type>;
+
   public:
+    using size_type = typename vect_type::size_type;
+    using difference_type = typename vect_type::difference_type;
+    using key_compare = Compare;
+    using value_compare = Compare;
+    using allocator_type = Allocator;
+    using reference = typename Allocator::reference;
+    using const_reference = typename Allocator::const_reference;
+    using pointer = typename Allocator::pointer;
     using iterator = typename vect_type::const_iterator;
     using const_iterator = typename vect_type::const_iterator;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    flat_set()
+    explicit flat_set(const Compare& comp = Compare(),
+                      const Allocator& alloc = Allocator())
+      : key_comp_{comp}
+      , alloc_{alloc}
     {}
 
     flat_set(std::initializer_list<Key> l)
@@ -96,6 +108,18 @@ namespace flat
       return std::upper_bound(vect_.begin(), vect_.end(), key);
     }
 
+    key_compare
+    key_comp() const
+    {
+      return key_comp_;
+    }
+
+    value_compare
+    value_comp() const
+    {
+      return key_comp();
+    }
+
     /*-------------------.
     |  Const forwarding  |
     `-------------------*/
@@ -142,6 +166,9 @@ namespace flat
 
 # undef DEFINE
 
+  private:
+    key_compare key_comp_;
+    allocator_type alloc_;
 
   };
 }
