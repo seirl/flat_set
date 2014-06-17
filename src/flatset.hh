@@ -95,6 +95,10 @@ namespace flat
       return vect_.Name(std::forward<Args>(args)...);       \
     }
 
+    DEFINE(begin);
+    DEFINE(end);
+    DEFINE(rbegin);
+    DEFINE(rend);
     DEFINE(clear);
     DEFINE(erase);
     DEFINE(swap);
