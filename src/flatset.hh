@@ -33,16 +33,15 @@ namespace flat
       : vect_{l}
     {
       sort(vect_.begin(), vect_.end());
+      vect_.erase(std::unique(vect_.begin(), vect_.end()), vect_.end());
     }
 
     template <typename InputIt>
     flat_set(const InputIt& first, const InputIt& last)
-      : vect_()
+      : vect_(first, last)
     {
-      vect_.reserve(last - first);
-      for (InputIt i = first; i != last; ++i)
-        vect_.push_back(*i);
       sort(vect_.begin(), vect_.end());
+      vect_.erase(std::unique(vect_.begin(), vect_.end()), vect_.end());
     }
 
   private:
