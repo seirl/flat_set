@@ -27,3 +27,4 @@ Makefile.in
 *.idea
 out
 flatset
+Makefile.rules
