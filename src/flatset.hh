@@ -52,10 +52,48 @@ namespace flat
     std::pair<iterator,bool>
     insert(const value_type& value)
     {
-      auto it = find(value);
-      if (it != vect_.end())
-        return {vect_.push_back(value), true};
-      return {it, false};
+      assert(std::is_sorted(begin(), end()));
+      auto it = std::lower_bound(vect_.begin(), vect_.end(), value);
+      if (it != vect_.end() && *it == value)
+        return {it, false};
+      return {vect_.insert(it, value), true};
+    }
+
+    iterator
+    find(const key_type& key)
+    {
+      auto lb = lower_bound(key);
+      return *lb == key ? lb : vect_.end();
+    }
+
+    std::pair<iterator, iterator>
+    equal_range(const key_type& key)
+    {
+      return {lower_bound(key), upper_bound(key)};
+    }
+
+    iterator
+    lower_bound(const Key& key)
+    {
+      return std::lower_bound(vect_.begin(), vect_.end(), key);
+    }
+
+    const_iterator
+    lower_bound(const Key& key) const
+    {
+      return std::lower_bound(vect_.begin(), vect_.end(), key);
+    }
+
+    iterator
+    upper_bound(const Key& key)
+    {
+      return std::upper_bound(vect_.begin(), vect_.end(), key);
+    }
+
+    const_iterator
+    upper_bound(const Key& key) const
+    {
+      return std::upper_bound(vect_.begin(), vect_.end(), key);
     }
 
     /*-------------------.
