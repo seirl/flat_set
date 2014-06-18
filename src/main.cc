@@ -74,6 +74,29 @@ int main(int , char *[])
     assert(s.find(0) != s.end());
     assert(s.find(7) == s.end());
 
+    assert(*s.erase(s.find(2)) == 3);
+    assert(s.size() == 6);
+    assert(s.erase(2) == 0);
+    assert(s.size() == 6);
+    assert(s.erase(3) == 1);
+    assert(s.size() == 5);
+    assert(*s.erase(s.find(1), s.find(6)) == 6);
+    assert(s.size() == 2);
+    s.swap(s2);
+    assert(s.size() == 3);
+    assert(s2.size() == 2);
+
+    assert(std::is_sorted(s.begin(), s.end()));
+    assert(!s.emplace(3).second);
+    assert(std::is_sorted(s.begin(), s.end()));
+    assert(s.emplace(2).second);
+    assert(std::is_sorted(s.begin(), s.end()));
+    assert(s.emplace_hint(s.find(3), 4).second);
+    assert(std::is_sorted(s.begin(), s.end()));
+    assert(s.size() == 5);
+
+    int a = 8;
+    assert(s.insert(std::move(a)).second);
   }
 
   {
@@ -92,6 +115,14 @@ int main(int , char *[])
     assert(s3.upper_bound(3) == s3.end());
     assert(*s3.upper_bound(0) == 1);
     assert(s3.upper_bound(6) == s3.end());
+
+    s3.clear();
+    assert(s3.size() == 0);
+    s3.insert(t.begin(), t.end());
+    assert(s3.size() == 2);
+    s3.insert({2, 4, 3});
+    assert(s3.size() == 4);
+    assert(std::is_sorted(s3.begin(), s3.end()));
   }
   {
     flat_set<int> s4{flat_set<int>{3, 5, 6}};
@@ -105,21 +136,30 @@ int main(int , char *[])
   cout << "Benchmark:" << endl << endl;
 
   BENCH(5000000, "insertions, ordered", s.insert(i),);
+
   BENCH(50000, "insertions, reverse", s.insert(-i),);
+
   BENCH(200000, "insertions, reverse", s.insert(-i),);
   srand(time(0));
+
   BENCH(300000, "insertions, random(MAX_INT)", s.insert(rand()),);
+
   BENCH(20000000, "insertions, random(1000)", s.insert(rand() % 1000),);
+
   BENCH(2000000, "random lookups, full array of 1000000",
         s.find(rand() % 1000000), for(int i=0;i<1000000;++i)s.insert(i));
+
   BENCH(5000000, "random lookups, sparse array (10 % of 1000000)",
         s.find(rand() % 1000000), for(int i=0;i<1000000;i+=10)s.insert(i));
+
   BENCH(10000000, "creations from initializer_list of size 1000000, ordered",
         create_initializer_list_<Set>(seq),
         auto seq = index_sequence<1000000>());
+
   BENCH(10000000, "creations from initializer_list of size 1000000, reverse",
         create_initializer_list_reverse_<Set>(seq),
         auto seq = index_sequence<1000000>());
+
   BENCH(10000000, "creations from initializer_list of size 1000000, random(10000)",
         create_initializer_list_random_<Set>(seq),
         auto seq = index_sequence<1000000>());
