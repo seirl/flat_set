@@ -211,10 +211,17 @@ namespace flat
       return lb != end() && key_equal_(*lb, key) ? lb : end();
     }
 
+    const_iterator
+    find(const key_type& key) const
+    {
+      auto lb = lower_bound(key);
+      return lb != cend() && key_equal_(*lb, key) ? lb : cend();
+    }
+
     size_type
     count(const value_type& val) const
     {
-      return find(val) != end() ? 1 : 0;
+      return find(val) != cend() ? 1 : 0;
     }
 
     std::pair<iterator, iterator>
@@ -238,7 +245,7 @@ namespace flat
     const_iterator
     lower_bound(const Key& key) const
     {
-      return std::lower_bound(begin(), end(), key, key_comp());
+      return std::lower_bound(cbegin(), cend(), key, key_comp());
     }
 
     iterator
@@ -250,7 +257,7 @@ namespace flat
     const_iterator
     upper_bound(const Key& key) const
     {
-      return std::upper_bound(begin(), end(), key, key_comp());
+      return std::upper_bound(cbegin(), cend(), key, key_comp());
     }
 
     void
@@ -322,7 +329,6 @@ namespace flat
     DEFINE(rend);
     DEFINE(clear);
     DEFINE(erase);
-    DEFINE(swap);
 
 # undef DEFINE
 
