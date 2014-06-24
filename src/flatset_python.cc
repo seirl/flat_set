@@ -1,44 +1,78 @@
 #include <boost/python.hpp>
+#include <iostream>
 
 #include "flatset.hh"
 
-using fs = flat::flat_set<int, std::less<int>, std::allocator<int>>;
-std::pair<fs::iterator, bool> (fs::*ins_val)(const fs::value_type&) = &fs::insert;
+namespace bp = boost::python;
 
-fs::const_iterator (fs::*cfind)(const fs::key_type&) = &fs::find;
-fs::iterator (fs::*find)(const fs::key_type&) = &fs::find;
+class flatset_wrapper
+{
+  using object_t = bp::object;
+  using fs = flat::flat_set<object_t>;
 
-fs::const_iterator (fs::*clower)(const fs::key_type&) = &fs::lower_bound;
-fs::iterator (fs::*lower)(const fs::key_type&) = &fs::lower_bound;
-fs::const_iterator (fs::*cupper)(const fs::key_type&) = &fs::upper_bound;
-fs::iterator (fs::*upper)(const fs::key_type&) = &fs::upper_bound;
+private:
+  fs flatset;
 
-std::pair<fs::const_iterator, fs::const_iterator> (fs::*ceqrange)(const fs::key_type&) = &fs::equal_range;
-std::pair<fs::iterator, fs::iterator> (fs::*eqrange)(const fs::key_type&) = &fs::equal_range;
+public:
+  void add(const object_t& b)
+  {
+    flatset.insert(b);
+  }
+
+  bool contains(const object_t& b)
+  {
+    return flatset.find(b) != flatset.end();
+  }
+
+  void clear()
+  {
+    flatset.clear();
+  }
+
+  bool len()
+  {
+    return flatset.size();
+  }
+
+  void remove(const object_t& b)
+  {
+    flatset.erase(b);
+  }
+
+  std::string repr()
+  {
+    std::stringstream os;
+    os << "flatset([";
+    int first = true;
+    for (const auto& o: flatset)
+    {
+      os << (first ? "" : ", ");
+      os << std::string(bp::extract<std::string>(o.attr("__repr__")()));
+      first = false;
+    }
+    os << "])";
+    return os.str();
+  }
+
+  auto begin() -> decltype(fs().begin()) { return flatset.begin(); }
+  auto end() -> decltype(fs().end()) { return flatset.end(); }
+
+  using iterator = fs::iterator;
+};
 
 BOOST_PYTHON_MODULE(flatset)
 {
-  namespace bp = boost::python;
+  using fw = flatset_wrapper;
 
-  bp::class_<fs>
-    ("flat_int_set")
-    //.def("__len__", &fs::size)
-    .def("__contains__", &fs::count)
-    .def("insert", ins_val)
-    //.def("erase", &fs::erase, erase())
-    //.def("emplace", &fs::emplace)
-    .def("find", cfind)
-    .def("find", find)
-    .def("count", &fs::count)
-    .def("lower_bound", clower)
-    .def("lower_bound", lower)
-    .def("upper_bound", cupper)
-    .def("upper_bound", upper)
-    .def("equal_range", ceqrange)
-    .def("equal_range", eqrange)
-    .def("swap", &fs::swap)
-    .def("key_comp", &fs::key_comp)
-    .def("value_comp", &fs::value_comp)
+  bp::class_<flatset_wrapper>
+    ("flatset")
+    .def("__contains__", &fw::contains)
+    .def("__iter__", bp::iterator<fw>())
+    .def("__repr__", &fw::repr)
+    .def("__len__", &fw::len)
+    .def("add", &fw::add)
+    .def("clear", &fw::clear)
+    .def("remove", &fw::remove)
     ;
 }
 

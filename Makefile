@@ -11,7 +11,7 @@ OBJSPIC=$(SRC:.cc=.o.fPIC) src/flatset_python.o.fPIC
 DEPS=$(OBJS:.o=.d)
 CXX?= g++
 CXXFLAGS+=-std=c++11
-CPPFLAGS=-MMD -I$(INCLUDES)
+CPPFLAGS+=-MMD -I$(INCLUDES)
 LIBDIR=
 LDFLAGS=$(shell python-config --libs) -lboost_python
 ifneq ($(LIBDIR), )
@@ -63,7 +63,7 @@ $(DYNAMICLIB): $(OBJSPIC)
 
 %.o: %.cc
 	@echo CC $@ ...
-	@$(COMPILE.cc) $(OUTPUT_OPTION) $<
+	@$(COMPILE.cc) $(CPPFLAGS) $(OUTPUT_OPTION) $<
 
 clean:
 	@echo Removing files ...
