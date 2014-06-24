@@ -1,7 +1,7 @@
 TARGET=flatset
 SRCDIR=src
 FILES=
-LIBNAME=$(LIBDIR)$(addprefix lib, $(TARGET))
+LIBNAME=$(LIBDIR)$(TARGET)
 
 include Makefile.rules
 
@@ -13,17 +13,18 @@ CXX?= g++
 CXXFLAGS+=-std=c++11
 CPPFLAGS=-MMD -I$(INCLUDES)
 LIBDIR=
+LDFLAGS=$(shell python-config --libs) -lboost_python
 ifneq ($(LIBDIR), )
-  LDFLAGS=-L$(LIBDIR) -lboost_python -lpython2.7
+  LDFLAGS+=-L$(LIBDIR)
 endif
-INCLUDES=$(addprefix $(SRCDIR)/, include)
+INCLUDES=$(addprefix $(SRCDIR)/, include) $(shell python-config --includes)
 STATICLIB=$(LIBNAME).a
 DYNAMICLIB=$(LIBNAME).so
 ARCHIVEPREFIX=tolmer_v-$(TARGET)
 ARCHIVENAME=$(ARCHIVEPREFIX).tar.bz2
 
 
-all: exec
+all: dynamiclib
 
 debug: CFLAGS += -g
 
@@ -51,7 +52,7 @@ dynamiclib: $(DYNAMICLIB)
 
 $(DYNAMICLIB): $(OBJSPIC)
 	@echo dynamic lib: $@ ...
-	@$(CXX) --shared -o $@ $^
+	@$(CXX) $(LDFLAGS) --shared -o $@ $^
 
 %.o.fPIC:CXXFLAGS+=-fPIC
 
