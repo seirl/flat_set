@@ -7,6 +7,7 @@ include Makefile.rules
 
 SRC=$(addprefix $(SRCDIR)/, $(FILES))
 OBJS=$(SRC:.cc=.o) src/main.o
+OBJSTEST=$(SRC:.cc=.test.o) src/main.test.o
 OBJSPIC=$(SRC:.cc=.o.fPIC) src/flatset_python.o.fPIC
 DEPS=$(OBJS:.o=.d)
 CXX?= g++
@@ -26,14 +27,22 @@ ARCHIVENAME=$(ARCHIVEPREFIX).tar.bz2
 
 all: dynamiclib
 
-debug: CFLAGS += -g
+debug: CXXFLAGS += -g
 
 debug: all
 
-check:
-	@cd test && python testsuite.py
+check: CPPFLAGS += -UNDEBUG
+check: TARGET = check
+
+check: $(OBJSTEST)
+	@$(CXX) $^ $(LDFLAGS) -o $@
+	./check
 
 exec: $(TARGET)
+
+bench: CPPFLAGS += -DNDEBUG
+
+bench: exec
 
 export:
 	git archive master --prefix=$(ARCHIVEPREFIX)/ | bzip2 > $(ARCHIVENAME)
@@ -60,6 +69,9 @@ $(DYNAMICLIB): $(OBJSPIC)
 	@echo FPIC $@ ...
 	$(COMPILE.cc) $(OUTPUT_OPTION) $<
 
+%.test.o: %.cc
+	@echo CC $@ ...
+	@$(COMPILE.cc) $(CPPFLAGS) $(OUTPUT_OPTION) $<
 
 %.o: %.cc
 	@echo CC $@ ...
@@ -67,9 +79,9 @@ $(DYNAMICLIB): $(OBJSPIC)
 
 clean:
 	@echo Removing files ...
-	@$(RM) $(OBJS) $(OBJSPIC) $(TARGET) $(STATICLIB) $(DYNAMICLIB) $(DEPS)
+	@$(RM) $(OBJS) $(OBJSPIC) $(OBJSTEST) $(TARGET) $(STATICLIB) $(DYNAMICLIB) $(DEPS)
 	@$(RM) $(ARCHIVENAME) $(PICDEPS)
 
-.PHONY: all clean staticlib dynamiclib exec check
+.PHONY: all clean staticlib dynamiclib exec check bench
 
 -include $(DEPS)
