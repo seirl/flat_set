@@ -45,6 +45,7 @@ int main(int , char *[])
 {
   using namespace flat;
 
+#ifndef NDEBUG
   {
     flat_set<int> s{1, 3, 5};
     assert(s.size() == 3);
@@ -129,9 +130,9 @@ int main(int , char *[])
     assert(s4.size() == 3);
   }
 
-#ifndef DNDEBUG
   cout << "All tests passed!" << endl;
-#endif
+
+#else
 
   cout << "Benchmark:" << endl << endl;
 
@@ -164,5 +165,6 @@ int main(int , char *[])
         create_initializer_list_random_<Set>(seq),
         auto seq = index_sequence<1000000>());
 
+#endif
   return 0;
 }
