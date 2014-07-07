@@ -1,0 +1,75 @@
+################
+##  Flatset   ##
+################
+
+Flatset is an implementation of the interface of std::set, but using a vector
+for storing the keys.
+
+The aim is to provide better performances than std::set in some use cases.
+Relying on a vector rather than a tree is useful, if only for the compacity of
+the representation of the data in memory. However, certain operations such as
+insertions not at the end cost dearly for the vector due to the relocation of
+the elements.
+
+Usage:
+===========
+
+First of all, prepare the compilation:
+$> ./configure
+
+Check if everything is working:
+$> make check
+
+Then, to create the python module:
+$> make
+
+To create the bench generator:
+$> make bench
+
+
+Benchmarks:
+===============
+
+Here are some benchmarks, run with g++-4.9, with -O3 -DNDEBUG:
+
+5000000 insertions, ordered (insert 1, 2, 3...)
+flat_set: 0.268015s
+set:      1.90891s
+
+50000 insertions, reverse (insert 50000, 49999, 49998...)
+flat_set: 0.291524s
+set:      0.00798321s
+
+200000 insertions, reverse (notice the quadratic explosion for flat_set)
+flat_set: 3.82633s
+set:      0.0394899s
+
+300000 insertions, random(MAX_INT)
+flat_set: 4.41701s
+set:      0.123406s
+
+20000000 insertions, random(1000)
+flat_set: 1.62794s
+set:      1.72997s
+
+2000000 random lookups, full array of 1000000 (every check returns true)
+flat_set: 0.414488s
+set:      1.74218s
+
+5000000 random lookups, sparse array (10 % of 1000000)
+                        (10% of every check returns true)
+flat_set: 0.671355s
+set:      1.50521s
+
+10000000 creations from initializer_list of size 1000000, ordered
+flat_set: 0.376625s
+set:      0.492816s
+
+10000000 creations from initializer_list of size 1000000, reverse
+flat_set: 0.382698s
+set:      0.499479s
+
+10000000 creations from initializer_list of size 1000000, random(10000)
+flat_set: 0.485168s
+set:      0.604052s
+
