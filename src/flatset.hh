@@ -6,6 +6,12 @@
 # include <functional>
 # include <vector>
 
+/*-------------------------------------------------------.
+| Flat_set.                                              |
+|                                                        |
+| This class implements the same interface as std::set,  |
+| but uses a vector for the storage of the keys.         |
+`-------------------------------------------------------*/
 
 namespace flat
 {
