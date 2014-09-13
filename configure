@@ -2,6 +2,7 @@
 
 rm -f Makefile.rules
 
+
 touch Makefile.rules
 for i in "$@"; do
   echo "$i" >> Makefile.rules
